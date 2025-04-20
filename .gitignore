@@ -1,0 +1,10 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.knxproj
+uploads/*
+.env
+.venv
+*.db
+knx_project_test.py
