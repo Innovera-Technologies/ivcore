@@ -11,21 +11,6 @@
                     "group_address_state": "0/2/14",
                     "sync_state": true,
                     "value_type": "temperature"
-                },
-                {
-                    "name": "4117.binary.entrance",
-                    "type": "BinarySensor",
-                    "group_address_state": "0/3/9"
-                },
-                {
-                    "name": "4117.binary.balcony",
-                    "type": "BinarySensor",
-                    "group_address_state": "0/3/10"
-                },
-                {
-                    "name": "4117.binary.occupancy",
-                    "type": "BinarySensor",
-                    "group_address_state": "0/3/3"
                 }
             ]
         },

@@ -1,4 +1,5 @@
 # knx_control.py
+import asyncio
 import logging
 import time
 from app.utils.knx_device_loader import RoomKNX
@@ -48,24 +49,54 @@ async def remove_room_instance(room_id: str):
 # This is the main setup function triggered on FastAPI startup or config update
 async def setup_knx_all():
     global room_instances, ROOM_INSTANCES
+
+    # 1) Tear down any existing tunnels so we free up gateway channels
+    for inst in room_instances:
+        try:
+            await inst.disconnect()
+        except Exception as e:
+            logging.warning(f"Error disconnecting room {inst.room_id}: {e}")
+
+    # 2) Reset in-memory collections
     room_instances = []
     ROOM_INSTANCES = {}
 
-    for room in dynamic_room_config:
-        instance = RoomKNX(
-            room_id=room["room_id"], ip=room["ip"], devices=room["devices"]
+    # 3) Re-build with per-room error capture
+    failed = []
+    for cfg in dynamic_room_config:
+        inst = RoomKNX(
+            room_id=cfg["room_id"],
+            ip=cfg["ip"],
+            devices=cfg["devices"],
         )
-        await instance.initialize()
-        room_instances.append(instance)
-        ROOM_INSTANCES[room["room_id"]] = instance
+        try:
+            await inst.initialize()
+            room_instances.append(inst)
+            ROOM_INSTANCES[cfg["room_id"]] = inst
+        except Exception as e:
+            logging.error(f"❌ Could not connect room {cfg['room_id']}: {e}")
+            failed.append(cfg["room_id"])
+
+    # 4) Return a summary instead of blowing up
+    return {
+        "status": "partial" if failed else "complete",
+        "configured": len(room_instances),
+        "failed_rooms": failed,
+    }
+
+
 
 
 # Update configuration dynamically from API
 async def update_room_configuration(config: list[dict]):
+    """
+    Overwrite the in-memory config and rebuild all tunnels,
+    returning a summary of successes vs. failures.
+    """
     global dynamic_room_config
     dynamic_room_config = config
-    await setup_knx_all()
-    return {"status": "KNX rooms configured", "rooms": len(room_instances)}
+    # setup_knx_all now returns {"status":"complete"/"partial", "configured": N, "failed_rooms":[...]}
+    return await setup_knx_all()
 
 
 # Utility to get data from a device (for now used by /temperature)
@@ -135,3 +166,28 @@ def get_xknx_instance(room_id: str):
         if str(room.room_id) == str(room_id):
             return room.xknx
     return None
+
+
+async def _initialize_with_retry(
+    instance: RoomKNX,
+    retries: int = 3,
+    base_delay: float = 1.0
+) -> bool:
+    """
+    Try instance.initialize() up to `retries` times, with exponential backoff.
+    Returns True on success, False on final failure.
+    """
+    for attempt in range(1, retries + 1):
+        try:
+            await instance.initialize()
+            logging.info(f"✅ Initialized room {instance.room_id} on attempt {attempt}")
+            return True
+        except Exception as e:
+            logging.warning(
+                f"⚠️  Init failed for room {instance.room_id} "
+                f"(attempt {attempt}/{retries}): {e}"
+            )
+            if attempt < retries:
+                await asyncio.sleep(base_delay * (2 ** (attempt - 1)))
+    logging.error(f"❌ Giving up on room {instance.room_id} after {retries} attempts")
+    return False

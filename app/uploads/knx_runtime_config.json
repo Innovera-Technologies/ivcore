@@ -97,6 +97,22 @@
       ]
     },
     {
+      "room_id": "4123",
+      "ip": "192.168.63.36",
+      "devices": [
+        {
+          "name": "4123.room.temperature",
+          "type": "Sensor",
+          "group_address": null,
+          "group_address_state": "0/2/14",
+          "passive_group_addresses": [],
+          "value_type": "temperature",
+          "always_callback": false,
+          "sync_state": true
+        }
+      ]
+    },
+    {
       "room_id": "4124",
       "ip": "192.168.63.37",
       "devices": [
@@ -118,6 +134,38 @@
       "devices": [
         {
           "name": "4125.room.temperature",
+          "type": "Sensor",
+          "group_address": null,
+          "group_address_state": "0/2/14",
+          "passive_group_addresses": [],
+          "value_type": "temperature",
+          "always_callback": false,
+          "sync_state": true
+        }
+      ]
+    },
+    {
+      "room_id": "4126",
+      "ip": "192.168.63.44",
+      "devices": [
+        {
+          "name": "4126.room.temperature",
+          "type": "Sensor",
+          "group_address": null,
+          "group_address_state": "0/2/14",
+          "passive_group_addresses": [],
+          "value_type": "temperature",
+          "always_callback": false,
+          "sync_state": true
+        }
+      ]
+    },
+    {
+      "room_id": "4127",
+      "ip": "192.168.63.46",
+      "devices": [
+        {
+          "name": "4127.room.temperature",
           "type": "Sensor",
           "group_address": null,
           "group_address_state": "0/2/14",

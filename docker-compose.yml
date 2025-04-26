@@ -3,10 +3,9 @@ version: "3.9"
 services:
   ivcore:
     build: .
-    network_mode: "host"
     container_name: ivcore_backend
-    # ports:
-    #   - "8000:8000" // removed for network_mode host
+    ports:
+      - "8000:8000"
     volumes:
       - .:/app
       - ./uploads:/app/uploads

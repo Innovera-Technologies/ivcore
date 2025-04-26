@@ -4,7 +4,7 @@ from typing import List, Optional
 
 class KNXDeviceConfig(BaseModel):
     name: str
-    type: str  # Must match SUPPORTED_DEVICES keys
+    type: str
     group_address: Optional[str] = None
     group_address_state: Optional[str] = None
     passive_group_addresses: Optional[List[str]] = []

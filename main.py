@@ -3,7 +3,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response
 from app.routes import project_parser, knx_config, device_config, devices_runtime, knx_ws, knx_control_ws
 from knx_control import get_temperature_for_room
-from app.routes import temperature, knx_runtime
+from app.routes import knx_runtime
 import psutil
 import asyncio
 
@@ -13,7 +13,6 @@ app = FastAPI()
 app.include_router(project_parser.router)
 app.include_router(knx_config.router)
 app.include_router(device_config.router)
-app.include_router(temperature.router)
 app.include_router(knx_runtime.router)
 app.include_router(devices_runtime.router)
 app.include_router(knx_ws.router)
